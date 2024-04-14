@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Notes</title>
+</head>
+<body>
+<h1>Notes</h1>
+<ul id="notesList">
+    <li th:each="note : ${notes}">
+        <h2 th:text="${note.title}"></h2>
+        <p th:text="${note.content}"></p>
+        <p th:text="${note.createdAt}"></p>
+    </li>
+</ul>
+
+<h2>Add New Note</h2>
+<form id="addNoteForm" method="post" action="/note/new">
+    <label for="title">Title:</label><br>
+    <input type="text" id="title" name="title"><br>
+    <label for="content">Content:</label><br>
+    <textarea id="content" name="content"></textarea><br>
+    <button type="submit">Submit</button>
+</form>
+
+<!-- Add JavaScript for form submission -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var addNoteForm = document.getElementById('addNoteForm');
+
+    addNoteForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        var formData = {
+            title: document.getElementById('title').value,
+            content: document.getElementById('content').value
+        };
+
+        // Submit fetch API request
+        fetch('/note/new', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error('Failed to add note.');
+            }
+            return response.text();
+        })
+        .then(function(data) {
+            // Clear form fields
+            document.getElementById('title').value = '';
+            document.getElementById('content').value = '';
+
+            location.reload();
+        })
+        .catch(function(error) {
+            console.error('Error:', error);
+        });
+    });
+
+    // Function to append notes to the existing list
+    function appendNotes(data) {
+        var notesList = document.getElementById('notesList');
+        notesList.insertAdjacentHTML('beforeend', data);
+    }
+
+});
+</script>
+</body>
+</html>
